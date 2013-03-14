@@ -6,8 +6,8 @@
  * @subpackage Examples
  */
 
-require_once '../src/Coseva/CSV.php';
-use \Coseva\CSV;
+require_once '../src/Coseva/Csv.php';
+use \Coseva\Csv;
 
 $fromCurrency = 'EUR';
 $toCurrency = 'USD';
@@ -35,7 +35,7 @@ $conversionRate = explode('</span>', $conversionRate[1], 2);
 $conversionRate = $conversionRate[0] + 0;
 
 // Open the examples file with income for a week.
-$csv = CSV::getInstance('example6.csv');
+$csv = Csv::getInstance('example6.csv');
 
 // Filter the income.
 $csv->filter(

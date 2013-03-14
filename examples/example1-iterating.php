@@ -1,15 +1,15 @@
 <?php
 
-// load
-require '../src/Coseva/CSV.php';
 
-// read
-$csv = new Coseva\CSV('example1.csv');
+require '../src/Coseva/Csv.php';
 
-// parse
-$csv->parse();
+use Coseva\Csv;
 
-// disco
-foreach ($csv as $row) {
-    // persist row to datastore or something
-}
+$csv = Csv::getInstance('example1.csv');
+$csv->fetchColumns();
+
+$csv->filter(function ($row) { return array_map('intval', $row); });
+$csv->filter('3a', function ($cell) { return $cell . ' bananas'; });
+$csv->filter('4a', 'number_format', 2, ',', '.');
+
+echo $csv->toJSON();

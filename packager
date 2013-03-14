@@ -14,7 +14,7 @@
  */
 
 define('LINE_FEED', "\n================================================================================\n");
-define('LIBRARY', 'Coseva/CSV.php');
+define('LIBRARY', 'Coseva/Csv.php');
 
 echo 'Load dependencies. . . ';
 
@@ -72,7 +72,7 @@ echo 'Checking CLI arguments. . . ';
 if (empty($_SERVER['argv'])) die('No arguments given!');
 
 // The Coseva library.
-$library = dirname(__FILE__) . '/src/Coseva/CSV.php';
+$library = dirname(__FILE__) . '/src/' . LIBRARY;
 
 if (!is_readable($library)) die(
   'Could not read the Coseva library file. Expected to be found at: "'
@@ -181,7 +181,7 @@ echo 'Setting Phar stub, to initialize Coseva. . . ';
 // Create a stub that included the library, sets the source file and loads the
 // given script.
 $stub = '<?php Phar::interceptFileFuncs();'
-  . PHP_EOL . 'include_once \'phar://' . $alias . '/Coseva/CSV.php\';'
+  . PHP_EOL . 'include_once \'phar://' . $alias . '/Coseva/Csv.php\';'
   . PHP_EOL . 'define(\'SOURCE_FILE\', \'phar://' . $alias . '/' . $sourceAlias
   . '\');' . PHP_EOL . 'include \'phar://' . $alias . '/' . $scriptAlias . '\';'
   . PHP_EOL . '__HALT_COMPILER();';

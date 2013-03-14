@@ -9,8 +9,8 @@
  * @subpackage Examples
  */
 
-require_once '../src/Coseva/CSV.php';
-use \Coseva\CSV;
+require_once '../src/Coseva/Csv.php';
+use \Coseva\Csv;
 
 // We use a 103.2 MB CSV file for testing.
 $testFile = '/tmp/L2_2012-01.csv';
@@ -29,7 +29,7 @@ $testFilter = function(array $row) {
 };
 
 // Get an instance of CSV.
-$csv = CSV::getInstance($testFile);
+$csv = Csv::getInstance($testFile);
 
 // Set the flag to remove rows when empty.
 // Pro tip, this can actually speed up filters of the second iteration.

@@ -1,12 +1,12 @@
 <?php
 /**
- * Coseva CSV.
+ * Coseva Csv.
  *
- * A friendly, object-oriented alternative for parsing and filtering CSV files
+ * A friendly, object-oriented alternative for parsing and filtering Csv files
  * with PHP.
  *
  * @package Coseva
- * @subpackage CSV
+ * @subpackage Csv
  * @copyright 2013 Johnny Freeman
  */
 
@@ -15,14 +15,14 @@ namespace Coseva;
 use \InvalidArgumentException;
 
 /**
- * CSV.
+ * Csv.
  */
-class CSV {
+class Csv {
 
   /**
-   * Storage for parsed CSV rows.
+   * Storage for parsed Csv rows.
    *
-   * @var array $_rows the rows found in the CSV resource
+   * @var array $_rows the rows found in the Csv resource
    */
   protected $_rows;
 
@@ -69,14 +69,21 @@ class CSV {
   protected $_garbageCollection = true;
 
   /**
-   * The file which holds the CSV.
+   * Whether the filters should stay after they have been applied.
+   *
+   * @var boolean $_persistentFilters
+   */
+  protected $_persistentFilters = false;
+
+  /**
+   * The file which holds the Csv.
    *
    * @var string $_sourceFile
    */
   protected $_sourceFile;
 
   /**
-   * The format in which the CSV is stored.
+   * The format in which the Csv is stored.
    *
    * @todo add a method that can modify these format settings. The method in
    *   question has to be rather strict, since we want to be able to extract
@@ -98,22 +105,22 @@ class CSV {
   const FLUSHTHRESHOLD = 1e6;
 
   /**
-   * An array of instances of CSV to prevent unnecessary parsing of CSV files.
+   * An array of instances of Csv to prevent unnecessary parsing of Csv files.
    *
-   * @var array $_instances A list of CSV instances, keyed by filename
+   * @var array $_instances A list of Csv instances, keyed by filename
    */
   private static $_instances = array();
 
   /**
-   * Constructor for CSV.
+   * Constructor for Csv.
    *
-   * To read a csv file, just pass the path to the .csv file.
+   * To read a Csv file, just pass the path to the .Csv file.
    *
    * @param string $filename The file to read. Should be readable
    * @param boolean $useIncludePath Whether to search through include_path
    * @param boolean $resolveFilename Whether to resolve the filename
    * @throws InvalidArgumentException when the given file could not be read
-   * @return CSV $this
+   * @return Csv $this
    */
   public function __construct(
     $filename, $useIncludePath = false, $resolveFilename = true
@@ -148,13 +155,13 @@ class CSV {
   }
 
   /**
-   * Get an instance of CSV, based on the filename.
+   * Get an instance of Csv, based on the filename.
    *
-   * @param string $filename the CSV file to read. Should be readable.
+   * @param string $filename the Csv file to read. Should be readable.
    *   Filenames will be resolved. Symlinks will be followed.
    * @param boolean $useIncludePath whether Coseva should look inside the
    *   include path when searching for the source file.
-   * @return CSV self::$_instances[$filename]
+   * @return Csv self::$_instances[$filename]
    */
   public static function getInstance(
     $filename, $useIncludePath = false, $resolveFilename = true
@@ -223,10 +230,10 @@ class CSV {
   }
 
   /**
-   * Fetch the first row of the CSV file as the column names.
+   * Fetch the first row of the Csv file as the column names.
    *
    * @param boolean $fetch whether to fetch them
-   * @return CSV $this
+   * @return Csv $this
    */
   public function fetchColumns($fetch = true) {
     $this->_fetchColumnNames = !!$fetch;
@@ -243,7 +250,7 @@ class CSV {
    * @param callable $callable Expects a scalar when applied on a column and an
    *   array if applied on the whole row
    * @throws InvalidArgumentException when no valid callable was given
-   * @return CSV $this
+   * @return Csv $this
    */
   public function filter($column, $callable = null) {
     // Set the defaults.
@@ -281,11 +288,11 @@ class CSV {
 
   /**
    * Flush rows that have turned out empty, either after applying filters or
-   * rows that simply have been empty in the source CSV from the get-go.
+   * rows that simply have been empty in the source Csv from the get-go.
    *
    * @param boolean $onAfterFilter whether or not to trigger while parsing.
    *   Leave this blank to trigger a flush right now.
-   * @return CSV $this
+   * @return Csv $this
    */
   public function flushEmptyRows($onAfterFilter = null) {
     // Update the _flushOnAfterFilter flag and return.
@@ -294,7 +301,7 @@ class CSV {
       return $this;
     }
 
-    // Parse the CSV.
+    // Parse the Csv.
     if (!isset($this->_rows)) $this->parse();
 
     // Walk through the rows.
@@ -325,10 +332,10 @@ class CSV {
   }
 
   /**
-   * This method will convert the csv to an array and will run all registered
+   * This method will convert the Csv to an array and will run all registered
    * filters against it.
    *
-   * @return CSV $this
+   * @return Csv $this
    */
   public function parse() {
     if (!isset($this->_rows)) {
@@ -341,7 +348,7 @@ class CSV {
       extract($this->_format);
 
       // Fetch the first row to determine the columns.
-      $row = fgetcsv($fh, 0, $delimiter, $enclosure, $escape);
+      $row = fgetCsv($fh, 0, $delimiter, $enclosure, $escape);
 
       // See if we want actual column names or simple column indices.
       if ($this->_fetchColumnNames) {
@@ -357,7 +364,7 @@ class CSV {
       }
 
       // Fetch the rows.
-      while ($row = fgetcsv($fh, 0, $delimiter, $enclosure, $escape)) {
+      while ($row = fgetCsv($fh, 0, $delimiter, $enclosure, $escape)) {
         // Apply any filters.
         $this->_rows[$key] = $this->_applyFilters(
           $this->_fetchedColumns
@@ -421,7 +428,7 @@ class CSV {
    * Whether or not to use garbage collection after parsing.
    *
    * @param bool $collect
-   * @return CSV $this
+   * @return Csv $this
    */
   public function collectGarbage($collect = true) {
     $this->_garbageCollection = (bool) $collect;
@@ -431,10 +438,21 @@ class CSV {
   /**
    * Flushes all active filters.
    *
-   * @return CSV $this
+   * @return Csv $this
    */
   public function flushFilters() {
-    $this->_filters = array();
+    if (!$this->_persistentFilters) $this->_filters = array();
+    return $this;
+  }
+
+  /**
+   * Let filters persist after being applied.
+   *
+   * @param boolean $persistent
+   * @return Csv $this
+   */
+  public function persistentFilters($persistent = true) {
+    $this->_persistentFilters = !!$persistent;
     return $this;
   }
 
@@ -480,7 +498,7 @@ class CSV {
   }
 
   /**
-   * Use this to get the entire CSV in JSON format.
+   * Use this to get the entire Csv in JSON format.
    *
    * @return string JSON encoded string
    */
@@ -490,9 +508,9 @@ class CSV {
   }
 
   /**
-   * Returns the parsed CSV as a string.
+   * Returns the parsed Csv as a string.
    *
-   * @return string $this->toCSV() parsed and filtered rows as CSV
+   * @return string $this->toCsv() parsed and filtered rows as Csv
    */
   public function __toString() {
     // @todo Implementation pl0x.

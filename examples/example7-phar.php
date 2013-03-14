@@ -10,7 +10,7 @@
  */
 
 // Coseva will be automatically included by the created package.
-use \Coseva\CSV;
+use \Coseva\Csv;
 
 $fromCurrency = 'EUR';
 $toCurrency = 'USD';
@@ -39,7 +39,7 @@ $conversionRate = $conversionRate[0] + 0;
 
 // Open the examples file with income for a week.
 // SOURCE_FILE will be defined by the package bootstrap code.
-$csv = CSV::getInstance(SOURCE_FILE);
+$csv = Csv::getInstance(SOURCE_FILE);
 
 // Filter the income.
 $csv->filter(
@@ -57,4 +57,4 @@ $csv->filter(
 );
 
 // Output the converted income.
-echo '<h1>Income in ' . $toCurrency . '</h1>' . $csv;
+echo $csv->toJSON();
