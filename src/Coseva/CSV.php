@@ -228,7 +228,7 @@ class CSV {
    * @param boolean $fetch whether to fetch them
    * @return CSV $this
    */
-  public function fetchColumnNames($fetch = true) {
+  public function fetchColumns($fetch = true) {
     $this->_fetchColumnNames = !!$fetch;
     return $this;
   }
@@ -329,11 +329,8 @@ class CSV {
    * @return CSV $this
    */
   public function parse() {
-    // Cast the row offset as an integer.
-    $rowOffset = (int) $rowOffset;
-
     if (!isset($this->_rows)) {
-      $fh = fopen($filename, 'r', false);
+      $fh = fopen($this->_sourceFile, 'r', false);
 
       $this->_rows = array();
       $key = 0;
@@ -358,7 +355,7 @@ class CSV {
       }
 
       // Fetch the rows.
-      foreach (fgetcsv($fh, 0, $delimiter, $enclosure, $escape) as $row) {
+      while ($row = fgetcsv($fh, 0, $delimiter, $enclosure, $escape)) {
         // Apply any filters.
         $row = $this->_applyFilters($row);
 
