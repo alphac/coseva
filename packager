@@ -180,7 +180,8 @@ echo 'Setting Phar stub, to initialize Coseva. . . ';
 
 // Create a stub that included the library, sets the source file and loads the
 // given script.
-$stub = '<?php Phar::interceptFileFuncs();'
+$stub = '#!/usr/bin/env php'
+  . PHP_EOL . '<?php Phar::interceptFileFuncs();'
   . PHP_EOL . 'include_once \'phar://' . $alias . '/Coseva/Csv.php\';'
   . PHP_EOL . 'define(\'SOURCE_FILE\', \'phar://' . $alias . '/' . $sourceAlias
   . '\');' . PHP_EOL . 'include \'phar://' . $alias . '/' . $scriptAlias . '\';'
@@ -192,6 +193,10 @@ echo '[OK]' . PHP_EOL;
 echo 'Saving archive to ' . $output . '. . . ';
 $phar->stopBuffering();
 echo '[OK]' . PHP_EOL;
+
+echo 'Changing file rights to become executable. . . ';
+echo chmod($output, 0755) ? '[OK]' : '[ERR]';
+echo PHP_EOL;
 
 echo LINE_FEED;
 echo 'DONE!!!' . PHP_EOL;
