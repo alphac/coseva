@@ -14,6 +14,7 @@
  */
 
 define('LINE_FEED', "\n================================================================================\n");
+define('LIBRARY', 'Coseva/CSV.php');
 
 echo 'Load dependencies. . . ';
 
@@ -152,7 +153,7 @@ $phar[$scriptAlias] = file_get_contents($script);
 echo '[OK]' . PHP_EOL;
 
 echo 'Adding Coseva library file. . . ';
-$phar['Coseva/CSV.php'] = file_get_contents($library);
+$phar[LIBRARY] = file_get_contents($library);
 echo '[OK]' . PHP_EOL;
 
 if (Phar::canCompress(Phar::GZ)) {
@@ -164,6 +165,10 @@ if (Phar::canCompress(Phar::GZ)) {
 
   echo 'Compressing Script. . . ';
   $phar[$scriptAlias]->compress(Phar::GZ);
+  echo '[OK]' . PHP_EOL;
+
+  echo 'Compressing Coseva. . . ';
+  $phar[LIBRARY]->compress(Phar::GZ);
   echo '[OK]' . PHP_EOL;
 }
 
