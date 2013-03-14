@@ -498,6 +498,27 @@ class Csv {
   }
 
   /**
+   * Save the current CSV to a file.
+   *
+   * @param $filename
+   * @throws InvalidArgumentException when the given filename was not writable
+   * @return CSV $this
+   */
+  public function save($filename = null) {
+    // Store the CSV in the source file.
+    if (empty($filename)) $filename = $this->_sourceFile;
+
+    if (!is_writable($filename)) throw new InvalidArgumentException(
+      'Could not write to file ' . var_export($filename, true)
+    );
+
+    // Save the data.
+    file_put_contents($filename, (string) $this);
+
+    return $csv;
+  }
+
+  /**
    * Use this to get the entire Csv in JSON format.
    *
    * @return string JSON encoded string
@@ -508,12 +529,57 @@ class Csv {
   }
 
   /**
+   * Transform the currently parsed rows back to valid CSV.
+   *
+   * @return string $csv
+   */
+  private function toCsv() {
+    if (!isset($this->_rows)) $this->parse();
+
+    $csv = $this->_rows;
+
+    // Add the columns back in as the first row.
+    if ($this->_fetchedColumns) array_unshift($csv, $this->_columns);
+
+    // Flatten the rows to CSV strings and implode thow whole of it.
+    $csv = implode(PHP_EOL, array_map(array($this, '_arrayToCsv'), $csv));
+
+    return $csv;
+  }
+
+  /**
+   * Transform an array to a CSV row.
+   *
+   * @return string $csv
+   */
+  private function _arrayToCsv(array $fields) {
+    // Gather the CSV format settings.
+    extract($this->_format);
+
+    $delimiter_esc = preg_quote($delimiter, '/');
+    $enclosure_esc = preg_quote($enclosure, '/');
+    $csv = array();
+
+    foreach ($fields as $field) {
+      // Enclose fields containing $delimiter, $enclosure or whitespace
+      $csv[] = preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field)
+        ? $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field)
+          . $enclosure
+        : $field;
+    }
+
+    $csv = implode($delimiter, $csv);
+
+    return $csv;
+  }
+
+  /**
    * Returns the parsed Csv as a string.
    *
    * @return string $this->toCsv() parsed and filtered rows as Csv
    */
   public function __toString() {
-    // @todo Implementation pl0x.
+    return $this->toCsv();
   }
 
 }
