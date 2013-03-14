@@ -120,7 +120,7 @@ class CSV {
   ) {
     // Check if the given filename was readable.
     if ($resolveFilename
-        && !$this->_resolveFilename($filename, $useIncludePath)
+        && !self::_resolveFilename($filename, $useIncludePath)
     ) {
       throw new InvalidArgumentException(
         var_export($filename, true) . ' is not readable.'
@@ -161,7 +161,7 @@ class CSV {
   ) {
     // Check if the given filename was readable.
     if ($resolveFilename
-        && !$this->_resolveFilename($filename, $useIncludePath)
+        && !self::_resolveFilename($filename, $useIncludePath)
     ) {
       throw new InvalidArgumentException(
         var_export($filename, true) . ' is not readable.'
@@ -196,7 +196,7 @@ class CSV {
    * @see http://php.net/manual/en/function.realpath.php
    * @return boolean true|false to indicate whether the resolving succeeded.
    */
-  private function _resolveFilename(&$filename, $useIncludePath = false) {
+  private static function _resolveFilename(&$filename, $useIncludePath = false) {
     $exists = file_exists($filename);
 
     // The given filename did not suffice. Let's do a deeper check.
@@ -267,9 +267,11 @@ class CSV {
     }
 
     // Check the function arguments.
-    if (!is_callable($callable)) throw new InvalidArgumentException(
-      'The $callable parameter must be callable.'
-    );
+    if (!is_callable($filter['callable'])) {
+      throw new InvalidArgumentException(
+        'The $callable parameter must be callable'
+      );
+    }
 
     // Add the filter to the stack.
     array_push($this->_filters, $filter);
@@ -343,7 +345,7 @@ class CSV {
 
       // See if we want actual column names or simple column indices.
       if ($this->_fetchColumnNames) {
-        $this->_columns = $this->_applyFilters($row);
+        $this->_columns = array_values($row);
         $this->_fetchedColumns = true;
       } else {
         $this->_columns = array_keys($row);
@@ -357,12 +359,11 @@ class CSV {
       // Fetch the rows.
       while ($row = fgetcsv($fh, 0, $delimiter, $enclosure, $escape)) {
         // Apply any filters.
-        $row = $this->_applyFilters($row);
-
-        // Add the row to the data set.
-        $this->_rows[$key] = $this->_fetchedColumns
-          ? array_combine($this->_columns, $row)
-          : $row;
+        $this->_rows[$key] = $this->_applyFilters(
+          $this->_fetchedColumns
+            ? array_combine($this->_columns, array_values($row))
+            : $row
+        );
 
         // Flush empty rows.
         if ($this->_flushOnAfterFilter) $this->_flushEmptyRow($row, $key, true);
@@ -456,7 +457,7 @@ class CSV {
           $row = call_user_func_array(
             $callable,
             array_merge(
-              array(&$row),
+              array($row),
               $arguments
             )
           );
@@ -464,7 +465,7 @@ class CSV {
           $row[$column] = call_user_func_array(
             $callable,
             array_merge(
-              array(&$row[$column]),
+              array($row[$column]),
               $arguments
             )
           );
