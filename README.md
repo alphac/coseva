@@ -171,6 +171,6 @@ A todo list can be found [here](TODO.md).
 
 ## Credits
 
-This repo is a fork from [johnnyfreeman/coseva](https://github.com/johnnyfreeman/coseva).
-Google Trends data was gathered using [this link](http://www.google.com/trends/explore?hl=en#q=github).
-Main development done by [johmanx10](https://github.com/johmanx10)
+- This repo is a fork from [johnnyfreeman/coseva](https://github.com/johnnyfreeman/coseva).
+- Google Trends data was gathered using [this link](http://www.google.com/trends/explore?hl=en#q=github).
+- Main development done by [johmanx10](https://github.com/johmanx10)
