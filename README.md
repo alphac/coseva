@@ -84,9 +84,25 @@ And remember, all filters can be stacked.
 
 Getting output out of Coseva is rather simple. The Csv class knows how to be cast to a string, so a simple `echo $csv;` will suffice in most cases.
 
-In case you want to serve the data to a web application through JSON, you can do so by calling `$csv->toJSON();`.
+### toCsv
+
+Getting back parsed CSV can be done by casting the Csv object of calling the corresponding method.
+
+- `echo $csv`
+- `echo $csv->toCsv()`
+
+### toJson
+
+In case you want to serve the data to a web application through JSON, you can do so by calling `$csv->toJson();`.
+
+- `echo $csv->toJson();`
+
+### Saving to file
 
 When saving the parsed CSV to a file, just call `$csv->save('/path/to/file');`. Or, to simply store the CSV back into it's source file, call `$csv->save();`.
+
+- `$csv->save('/path/to/file.csv');`
+- `$csv->save();`
 
 ## Optimization
 
@@ -121,10 +137,12 @@ To create an executable of your own:
 
 Once that has finished, you can run your package directly using `./package.phar`.
 
+## Todo
+
+A todo list can be found [here](TODO.md).
+
 ## Credits
 
 This repo is a fork from [johnnyfreeman/coseva](https://github.com/johnnyfreeman/coseva).
-
 Google Trends data was gathered using [this link](http://www.google.com/trends/explore?hl=en#q=github).
-
 Main development done by [johmanx10](https://github.com/johmanx10)

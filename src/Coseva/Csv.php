@@ -534,7 +534,7 @@ class Csv {
    *
    * @return string JSON encoded string
    */
-  public function toJSON() {
+  public function toJson() {
     if (!isset($this->_rows)) $this->parse();
     return json_encode($this->_rows);
   }
