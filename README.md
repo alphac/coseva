@@ -31,7 +31,7 @@ A most common use for Coseva is to properly parse data in PHP native data types.
 <?php
 $csv->filter('Hits', 'intval');
 
-// The parse method will be implicitely called when you try to get output, but
+// The parse method will be implicitely called when you try to get output and
 // there are no parsed rows available. This means you don't have to call the
 // parse method if you only need it once. This is true for most scenarios.
 $csv->parse();
