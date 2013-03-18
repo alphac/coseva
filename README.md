@@ -84,7 +84,7 @@ $csv->filter(function(array $row) {
 });
 ```
 
-## Flushing filters
+### Flushing filters
 
 If you're unhappy about the filters you applied to the Csv object, simply flush them.
 
@@ -92,7 +92,7 @@ If you're unhappy about the filters you applied to the Csv object, simply flush 
 
 Flushing the filters will be done each time you trigger `$csv->parse()` or an output method.
 
-## Persistent filters
+### Persistent filters
 
 Since filters will be automatically flushed after filtering and perhaps you might want to use them all over again, one
 can enable persistent filters. Remember, this should be only used in rare edge cases where data can be altered more than once by the same set of filters. The filtered data is what is stored and will be used when claiming output.
