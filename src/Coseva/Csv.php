@@ -430,6 +430,16 @@ class Csv {
   }
 
   /**
+   * Get the rows that have been parsed.
+   *
+   * @return array $this->_rows
+   */
+  public function getRows() {
+    if (!isset($this->_rows)) $this->parse();
+    return $this->_rows;
+  }
+
+  /**
    * Whether or not to use garbage collection after parsing.
    *
    * @param bool $collect

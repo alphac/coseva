@@ -22,6 +22,7 @@ $csv = Csv::getInstance('lib/monthly_income.csv');
 
 With Coseva you can easily filter and parse your data using it's smart filtering and parsing system.
 
+
 ### By column
 
 A most common use for Coseva is to properly parse data in PHP native data types.
@@ -29,6 +30,11 @@ A most common use for Coseva is to properly parse data in PHP native data types.
 ```
 <?php
 $csv->filter('Hits', 'intval');
+
+// The parse method will be implicitely called when you try to get output, but
+// there are no parsed rows available. This means you don't have to call the
+// parse method if you only need it once. This is true for most scenarios.
+$csv->parse();
 ```
 
 How about we format a price into a proper string? We could do that by stacking filters.
@@ -77,6 +83,22 @@ $csv->filter(function(array $row) {
   return $row;
 });
 ```
+
+## Flushing filters
+
+If you're unhappy about the filters you applied to the Csv object, simply flush them.
+
+- `$csv->flushFilters();`
+
+Flushing the filters will be done each time you trigger `$csv->parse()` or an output method.
+
+## Persistent filters
+
+Since filters will be automatically flushed after filtering and perhaps you might want to use them all over again, one
+can enable persistent filters. Remember, this should be only used in rare edge cases where data can be altered more than once by the same set of filters. The filtered data is what is stored and will be used when claiming output.
+
+- enable  `$csv->persistentFilters();`
+- disable `$csv->persistentFilters(false);`
 
 And remember, all filters can be stacked.
 
