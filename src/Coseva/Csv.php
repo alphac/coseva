@@ -20,7 +20,7 @@ use \InvalidArgumentException;
 class Csv {
 
   /**
-   * Storage for parsed Csv rows.
+   * Storage for parsed CSV rows.
    *
    * @var array $_rows the rows found in the Csv resource
    */
@@ -83,7 +83,7 @@ class Csv {
   protected $_sourceFile;
 
   /**
-   * The format in which the Csv is stored.
+   * The format in which the CSV is stored.
    *
    * @todo add a method that can modify these format settings. The method in
    *   question has to be rather strict, since we want to be able to extract
@@ -105,7 +105,7 @@ class Csv {
   const FLUSHTHRESHOLD = 1e6;
 
   /**
-   * An array of instances of Csv to prevent unnecessary parsing of Csv files.
+   * An array of instances of Csv to prevent unnecessary parsing of CSV files.
    *
    * @var array $_instances A list of Csv instances, keyed by filename
    */
@@ -114,11 +114,11 @@ class Csv {
   /**
    * Constructor for Csv.
    *
-   * To read a Csv file, just pass the path to the .Csv file.
+   * To read a Csv file, just pass the path to the source file.
    *
-   * @param string $filename The file to read. Should be readable
-   * @param boolean $useIncludePath Whether to search through include_path
-   * @param boolean $resolveFilename Whether to resolve the filename
+   * @param string $filename The file to read
+   * @param boolean $useIncludePath
+   * @param boolean $resolveFilename
    * @throws InvalidArgumentException when the given file could not be read
    * @return Csv $this
    */
@@ -157,10 +157,9 @@ class Csv {
   /**
    * Get an instance of Csv, based on the filename.
    *
-   * @param string $filename the Csv file to read. Should be readable.
+   * @param string $filename the CSV file to read
    *   Filenames will be resolved. Symlinks will be followed.
-   * @param boolean $useIncludePath whether Coseva should look inside the
-   *   include path when searching for the source file.
+   * @param boolean $useIncludePath
    * @return Csv self::$_instances[$filename]
    */
   public static function getInstance(
@@ -177,7 +176,6 @@ class Csv {
 
     // Check if an instance exists. If not, create one.
     if (!isset(self::$_instances[$filename])) {
-      // Collect the class name. This won't break when the class name changes.
       $class = __CLASS__;
 
       // Create a new instance of this class.
@@ -192,16 +190,16 @@ class Csv {
   /**
    * Resolve a given filename, keeping include paths in mind.
    *
-   * Note: Because PHP's integer type is signed and many platforms use 32bit
+   * Note: Because PHP's integer type is signed and many platforms use 32 bit
    * integers, some filesystem functions may return unexpected results for
    * files which are larger than 2GB.
    *
-   * @param string &$filename the file to resolve.
+   * @param string &$filename the path to resolve
    * @param boolean $useIncludePath whether or not to use the PHP include path.
    *   If set to true, the PHP include path will be used to look for the given
    *   filename. Only if the filename is using a relative path.
    * @see http://php.net/manual/en/function.realpath.php
-   * @return boolean true|false to indicate whether the resolving succeeded.
+   * @return boolean true|false to indicate whether the resolving succeeded
    */
   private static function _resolveFilename(&$filename, $useIncludePath = false) {
     $exists = file_exists($filename);
@@ -246,7 +244,8 @@ class Csv {
    *
    * Any additional arguments will be passed along to the callback.
    *
-   * @param integer|string $column Specific column
+   * @param integer|string $column Optional pecific column. Leave empty to
+   *   apply the filter on the entire row.
    * @param callable $callable Expects a scalar when applied on a column and an
    *   array if applied on the whole row
    * @throws InvalidArgumentException when no valid callable was given
@@ -260,18 +259,18 @@ class Csv {
       'args' => func_get_args()
     );
 
+    // Fetch the column.
+    if (is_scalar(current($filter['args']))) {
+      $filter['column'] = array_shift($filter['args']);
+
+      // Determine if this is a numeric or textual column index.
+      if ($this->_fetchedColumns && is_numeric($filter['column'])) {
+        $filter['column'] = $this->_columns[$filter['column']];
+      }
+    }
+
     // Gather the callable.
     $filter['callable'] = array_shift($filter['args']);
-
-    // Check if we actually have a column or a callable.
-    if (is_scalar($filter['callable'])) {
-      // Determine if this is a numeric or textual column index.
-      $filter['column'] = $this->_fetchedColumns && is_numeric($filter['callable'])
-        ? $this->_columns[$filter['callable']]
-        : $filter['callable'];
-
-      $filter['callable'] = array_shift($filter['args']);
-    }
 
     // Check the function arguments.
     if (!is_callable($filter['callable'])) {
@@ -335,11 +334,18 @@ class Csv {
    * This method will convert the Csv to an array and will run all registered
    * filters against it.
    *
+   * @throws
    * @return Csv $this
    */
   public function parse() {
     if (!isset($this->_rows)) {
       $fh = fopen($this->_sourceFile, 'r', false);
+
+      // We could not open the file.
+      if (!$fh) throw new UnexpectedValueException(
+        'Source file went away. We were looking for '
+        . var_export($this->_sourceFile, true)
+      );
 
       $this->_rows = array();
       $key = 0;
@@ -364,7 +370,7 @@ class Csv {
       }
 
       // Fetch the rows.
-      while ($row = fgetCsv($fh, 0, $delimiter, $enclosure, $escape)) {
+      while ($row = fgetcsv($fh, 0, $delimiter, $enclosure, $escape)) {
         // Apply any filters.
         $this->_rows[$key] = $this->_applyFilters(
           $this->_fetchedColumns
@@ -383,7 +389,6 @@ class Csv {
       $this->flushFilters();
 
       // We won't need the file anymore.
-      fclose($fh);
       unset($fh);
     } elseif (empty($this->_filters)) {
       // Nothing to do here.
@@ -505,8 +510,14 @@ class Csv {
    * @return CSV $this
    */
   public function save($filename = null) {
+    if (!isset($this->_rows)) $this->parse();
+
     // Store the CSV in the source file.
     if (empty($filename)) $filename = $this->_sourceFile;
+
+    if (!touch($filename)) throw new InvalidArgumentException(
+      'Could not touch the file ' . var_export($filename, true)
+    );
 
     if (!is_writable($filename)) throw new InvalidArgumentException(
       'Could not write to file ' . var_export($filename, true)
@@ -542,17 +553,17 @@ class Csv {
     if ($this->_fetchedColumns) array_unshift($csv, $this->_columns);
 
     // Flatten the rows to CSV strings and implode thow whole of it.
-    $csv = implode(PHP_EOL, array_map(array($this, '_arrayToCsv'), $csv));
+    $csv = implode(PHP_EOL, array_map(array($this, '_rowToCsv'), $csv));
 
     return $csv;
   }
 
   /**
-   * Transform an array to a CSV row.
+   * Transform a row to CSV.
    *
    * @return string $csv
    */
-  private function _arrayToCsv(array $fields) {
+  private function _rowToCsv(array $fields) {
     // Gather the CSV format settings.
     extract($this->_format);
 
