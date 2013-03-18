@@ -12,4 +12,4 @@ $csv->filter(function ($row) { return array_map('intval', $row); });
 $csv->filter('3a', function ($cell) { return $cell . ' bananas'; });
 $csv->filter('4a', 'number_format', 2, ',', '.');
 
-echo $csv->toJSON();
+echo $csv;

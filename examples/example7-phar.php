@@ -57,4 +57,4 @@ $csv->filter(
 );
 
 // Output the converted income.
-echo $csv->toJSON();
+echo $csv;
