@@ -27,7 +27,7 @@ With Coseva you can easily filter and parse your data using it's smart filtering
 
 A most common use for Coseva is to properly parse data in PHP native data types.
 
-```
+```php
 <?php
 $csv->filter('Hits', 'intval');
 
@@ -39,7 +39,7 @@ $csv->parse();
 
 How about we format a price into a proper string? We could do that by stacking filters.
 
-```
+```php
 <?php
 $csv->filter('Price', 'number_format', 2, '.', ',');
 $csv->filter('Price', function($price) { return $price . ' USD'; });
