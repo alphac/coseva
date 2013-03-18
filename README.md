@@ -119,6 +119,12 @@ In case you want to serve the data to a web application through JSON, you can do
 
 - `echo $csv->toJson();`
 
+### getRows
+
+A great amount of scenarios expect you to retreive the CSV data as a native PHP array. Coseva obliges.
+
+- `$csvArray = $csv->getRows();`
+
 ### Saving to file
 
 When saving the parsed CSV to a file, just call `$csv->save('/path/to/file');`. Or, to simply store the CSV back into it's source file, call `$csv->save();`.
